@@ -5,9 +5,14 @@ import java.util.List;
 public class Board {
 
     private int size;
-
     private List<List<Cell>> board;
 
+
+    public Board(int dimensions) {
+        this.size = dimensions;
+    }
+
+    public void printBoard() {}
 
     // getter and setters
     public int getSize() {
