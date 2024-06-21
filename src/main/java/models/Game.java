@@ -4,7 +4,9 @@ import Exceptions.InvalidBotCountException;
 import strategies.WinningStrategy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Game {
 
@@ -31,6 +33,7 @@ public class Game {
         this.winningStrategies = winningStrategies;
         this.gameState = GameState.IN_PROGRESS;
         this.nextPlayerMoveIndex = 0;
+        this.winner = null;
         this.moves = new ArrayList<>();
 
     }
@@ -86,6 +89,15 @@ public class Game {
             if(players.size() != dimensions - 1) {
                 throw new RuntimeException();
             }
+
+            Map<Character, Integer> symbolCounts = new HashMap<>();
+            for(Player player : players) {
+                if(!symbolCounts.containsKey(player.getSymbol().getSymbol())){
+                    symbolCounts.put(player.getSymbol().getSymbol(), 1);
+                } else {
+                    throw new RuntimeException();
+                }
+            }
         }
 
         public Game build() throws InvalidBotCountException {
@@ -95,7 +107,6 @@ public class Game {
             return new Game(this.dimensions, this.players, this.winningStrategies);
         }
     }
-
 
     // getter and setter
     public Board getBoard() {
@@ -153,4 +164,67 @@ public class Game {
     public void setWinningStrategies(List<WinningStrategy> winningStrategies) {
         this.winningStrategies = winningStrategies;
     }
+
+    public void printBoard() {
+        board.printBoard();
+    }
+
+    public boolean validMove(Move move) {
+        int row = move.getCell().getRow();
+        int col = move.getCell().getCol();
+
+        if(row >= board.getSize()) {
+            return false;
+        }
+
+        if(col >= board.getSize()) {
+            return false;
+        }
+
+        return board.getBoard().get(row).get(col).getCellState().equals(CellState.EMPTY);
+    }
+
+    public boolean checkWinner(Board board, Move move) {
+        for(WinningStrategy winningStrategy : winningStrategies) {
+            if(winningStrategy.checkWinner(move, board)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void makeMove() {
+        Player currentMovePlayer = players.get(nextPlayerMoveIndex);
+        System.out.println("It is " + currentMovePlayer.getName() + "'s turn. Please make your move");
+        Move move = currentMovePlayer.makeMove(board);
+
+        if(!validMove(move)) {
+            System.out.println("It is not a valid move! Please try again.");
+            return;
+        }
+
+        int row = move.getCell().getRow();
+        int col = move.getCell().getCol();
+
+        Cell cellToBeUpdated = board.getBoard().get(row).get(col);
+        cellToBeUpdated.setCellState(CellState.FILLED);
+        cellToBeUpdated.setPlayer(currentMovePlayer);
+
+        Move finalMoveObject = new Move(cellToBeUpdated, currentMovePlayer);
+        moves.add(finalMoveObject);
+
+        nextPlayerMoveIndex++;
+        nextPlayerMoveIndex %= players.size();
+
+        if(checkWinner(board, finalMoveObject)){
+            this.gameState = GameState.SUCCESS;
+            this.winner = currentMovePlayer;
+
+        } else if(moves.size() == board.getSize() * board.getSize()) {
+            this.gameState = GameState.DRAW;
+        }
+
+        System.out.println("Player " + currentMovePlayer.getName() + "moved at " + move.getCell().getRow() + ", " + move.getCell().getCol());
+    }
+
 }

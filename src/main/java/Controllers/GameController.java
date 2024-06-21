@@ -21,18 +21,19 @@ public class GameController {
     }
 
     public void displayBoard(Game game){
-//        game.getBoard().printBoard();
+        game.printBoard();
     }
-    public void makeMove(Game game){
 
+    public void makeMove(Game game){
+        game.makeMove();
     }
 
     public GameState checkState(Game game){
-        return null;
+        return game.getGameState();
     }
 
     public Player getWinner(Game game){
-        return null;
+        return game.getWinner();
     }
 
     public void undo(Game game){

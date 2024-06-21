@@ -14,6 +14,14 @@ public class Player {
 
     private Scanner scanner;
 
+    public Player(int id, String name, PlayerType playerType, Symbol symbol) {
+        this.id = id;
+        this.name = name;
+        this.playerType = playerType;
+        this.symbol = symbol;
+
+        this.scanner = new Scanner(System.in);
+    }
 
     // getter and setter
     public int getId() {
@@ -46,6 +54,16 @@ public class Player {
 
     public void setSymbol(Symbol symbol) {
         this.symbol = symbol;
+    }
+
+    public Move makeMove(Board board) {
+        System.out.println("Please mention the row in which you want to move.");
+        int row = this.scanner.nextInt();
+
+        System.out.println("Please mention the column in which you want to move.");
+        int col = this.scanner.nextInt();
+
+        return new Move(new Cell(row, col), this);
     }
 
 
